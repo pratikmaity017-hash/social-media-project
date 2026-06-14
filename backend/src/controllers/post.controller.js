@@ -2,16 +2,29 @@
 
 import postModel from "../models/post.model.js";
 import userModel from "../models/user.model.js";
+import imagekit from "../config/imagekit.js";
 
 // post create function
 export async function createPost(req, res) {
   try {
-    const { caption, image } = req.body;
+    const { caption } = req.body;
+
+    if (!req.file) {
+      return res.status(400).json({
+        message: "no file uploaded",
+      });
+    }
+
+    const result = await imagekit.files.upload({
+      file: req.file.buffer.toString("base64"),
+      fileName: `${Date.now()}-${req.file.originalname}`,
+      folder: "/posts",
+    });
 
     const post = await postModel.create({
       author: req.user.id,
-      caption,
-      image,
+      caption: req.body.caption,
+      image: result.url,
     });
 
     return res.status(201).json({
@@ -207,40 +220,78 @@ export async function getFeed(req, res) {
 
 export async function updatePost(req, res) {
   try {
+    const { id } = req.params;
+    const { caption, image } = req.body;
 
-    const {id} = req.params
-    const {caption , image} =req.body;
+    const post = await postModel.findById(id);
 
-    const post = await postModel.findById(id)
-
-    if(!post){
+    if (!post) {
       return res.status(404).json({
-        message: "post not found"
-      })
+        message: "post not found",
+      });
     }
 
-    if(post.author.toString() !== req.user.id){
+    if (post.author.toString() !== req.user.id) {
       return res.status(403).json({
-        message:"Unauthorized"
-      })
+        message: "Unauthorized",
+      });
     }
 
-    if(caption !== undefined){
-      post.caption = caption
+    if (caption !== undefined) {
+      post.caption = caption;
     }
 
-    if(image !== undefined){
-      post.image = image
+    if (image !== undefined) {
+      post.image = image;
     }
 
-    await post.save()
+    await post.save();
 
     return res.status(200).json({
-      message:"post updated successfully",
+      message: "post updated successfully",
       post,
-    }
-    )
+    });
+  } catch (err) {
+    return res.status(500).json({
+      message: err.message,
+    });
+  }
+}
 
+export async function deleteComment(req, res) {
+  try {
+    const { postId, commentId } = req.params;
+
+    const post = await postModel.findById(postId);
+
+    if (!post) {
+      return res.status(404).json({
+        message: "post not found",
+      });
+    }
+
+    const comment = await post.comments.id(commentId);
+
+    if (!comment) {
+      return res.status(404).json({
+        message: "comment not found",
+      });
+    }
+
+    if (comment.user.toString() !== req.user.id) {
+      return res.status(403).json({
+        message: "Unauthorized",
+      });
+    }
+
+    comment.deleteOne();
+
+    await comment.save();
+
+    return res.status(200).json({
+      message: "comment deleted successfully",
+      commentscount: post.comments.length,
+    });
   } catch (err) {
     return res.status(500).json({
       message: err.message,

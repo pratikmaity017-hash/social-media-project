@@ -5,6 +5,7 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import config from "../config/config.js";
 import postModel from "../models/post.model.js";
+import imagekit from "../config/imagekit.js";
 
 // register the user.
 export async function registerUser(req, res) {
@@ -303,6 +304,81 @@ export async function searchUser(req, res) {
     return res.status(200).json({
       count: users.length,
       users,
+    });
+  } catch (err) {
+    return res.status(500).json({
+      message: err.message,
+    });
+  }
+}
+
+export async function uploadAvatar(req, res) {
+  try {
+    if (!req.file) {
+      return res.status(400).json({
+        message: "file is not uploaded",
+      });
+    }
+
+    const result = await imagekit.files.upload({
+      file: req.file.buffer.toString("base64"),
+      fileName: `${Date.now()}-${req.file.originalname}`,
+      folder: "/avatars",
+    });
+
+    const user = await userModel.findById(req.user.id);
+
+    user.avatar = result.url;
+
+    await user.save();
+
+    return res.status(200).json({
+      message: "avatar uploaded successfully",
+      avatar: result.url,
+    });
+  } catch (err) {
+    return res.status(500).json({
+      message: err.message,
+    });
+  }
+}
+
+export async function savePost(req, res) {
+  try {
+    const { postId } = req.params;
+
+    const user = await userModel.findById(req.user.id);
+
+    console.log(user.savedPosts);
+
+    const post = await postModel.findById(postId);
+
+    if (!post) {
+      return res.status(404).json({
+        message: "post is not found",
+      });
+    }
+
+    const isSaved = user.savedPosts.some((id) => id.toString() === postId);
+
+    if (isSaved) {
+      user.savedPosts.pull(postId);
+
+      await user.save();
+
+      return res.status(200).json({
+        message: "post unsaved successfully",
+        isSaved: false,
+      });
+    }
+
+    user.savedPosts.push(postId);
+
+    await user.save();
+
+    return res.status(200).json({
+      message: "post saved successfully",
+      isSaved: true,
     });
   } catch (err) {
     return res.status(500).json({

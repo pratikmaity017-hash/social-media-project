@@ -1,10 +1,16 @@
 import { Router } from "express";
 import * as postController from "../controllers/post.controller.js";
 import { authMiddleware } from "../middlewares/auth.middleware.js";
+import upload from "../middlewares/upload.midddleware.js";
 
 const router = Router();
 
-router.post("/createpost", authMiddleware, postController.createPost);
+router.post(
+  "/createpost",
+  authMiddleware,
+  upload.single("image"),
+  postController.createPost,
+);
 
 router.get("/", authMiddleware, postController.getAllPosts);
 
@@ -19,5 +25,11 @@ router.post("/:id/like", authMiddleware, postController.toggleLike);
 router.post("/:id/comment", authMiddleware, postController.addComment);
 
 router.patch("/:id", authMiddleware, postController.updatePost);
+
+router.delete(
+  "/:postId/comment/:commentId",
+  authMiddleware,
+  postController.deleteComment,
+);
 
 export default router;
