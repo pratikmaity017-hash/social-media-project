@@ -1,9 +1,10 @@
-// api ki kaj korbe sei function create kora
+// auth prefix aa call hole api ki kaj korbe sei function create kora
 
 import userModel from "../models/user.model.js";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import config from "../config/config.js";
+import postModel from "../models/post.model.js";
 
 // register the user.
 export async function registerUser(req, res) {
@@ -144,6 +145,167 @@ export async function getCurrentUser(req, res) {
     });
   } catch (err) {
     res.status(500).json({
+      message: err.message,
+    });
+  }
+}
+
+// create follow/unfollow toggle system
+export async function toggleFollow(req, res) {
+  try {
+    const targetUserId = req.params.id;
+    const currentUserId = req.user.id;
+
+    if (targetUserId === currentUserId) {
+      return res.status(401).json({
+        message: "You Can't Follow Yourself",
+      });
+    }
+
+    const currentUser = await userModel.findById(currentUserId);
+
+    const targetUser = await userModel.findById(targetUserId);
+
+    if (!targetUser) {
+      return res.status(401).json({
+        message: "user not found",
+      });
+    }
+
+    const isFollowing = currentUser.following.includes(targetUserId);
+
+    //advanced is following for fewer bugs in future
+
+    // const isFollowing = currentUser.following.some(
+    //   (id) => id.toString() === targetUserId,
+    // );
+
+    if (isFollowing) {
+      currentUser.following.pull(targetUserId);
+      targetUser.followers.pull(currentUserId);
+
+      await currentUser.save();
+      await targetUser.save();
+
+      return res.status(200).json({
+        message: "User Unfollow Successfully",
+        isFollowing: false,
+        followersCount: targetUser.followers.length,
+        followingCount: currentUser.following.length,
+      });
+    }
+
+    currentUser.following.push(targetUserId);
+    targetUser.followers.push(currentUserId);
+
+    await currentUser.save();
+    await targetUser.save();
+
+    return res.status(200).json({
+      message: "User Follow Successfully",
+      isFollowing: true,
+      followersCount: targetUser.followers.length,
+      followingCount: currentUser.following.length,
+    });
+  } catch (err) {
+    return res.status(500).json({
+      message: err.message,
+    });
+  }
+}
+// create user profile featch function
+export async function getUserProfile(req, res) {
+  try {
+    const { id } = req.params;
+    const user = await userModel.findById(id);
+
+    if (!user) {
+      return res.status(404).json({
+        message: "user not found",
+      });
+    }
+
+    const postCount = await postModel.countDocuments({
+      author: id,
+    });
+
+    return res.status(200).json({
+      message: "Profile featched successfully",
+      user: {
+        _id: user._id,
+        username: user.username,
+        bio: user.bio,
+        avatar: user.avatar,
+        followersCount: user.followers.length,
+        followingCount: user.following.length,
+        postCount,
+      },
+    });
+  } catch (err) {
+    return res.status(500).json({
+      message: err.message,
+    });
+  }
+}
+
+export async function updateProfile(req, res) {
+  try {
+    const { bio, avatar } = req.body;
+
+    const user = await userModel.findById(req.user.id).select("-password");
+
+    if (!user) {
+      return res.status(404).json({
+        message: "user not found",
+      });
+    }
+
+    if (bio !== undefined) {
+      user.bio = bio;
+    }
+
+    if (avatar !== undefined) {
+      user.avatar = avatar;
+    }
+
+    await user.save();
+
+    return res.status(200).json({
+      message: "Profile updated successfully",
+      user,
+    });
+  } catch (err) {
+    return res.status(500).json({
+      message: err.message,
+    });
+  }
+}
+
+export async function searchUser(req, res) {
+  try {
+    const { username } = req.query;
+
+    if (!username) {
+      return res.status(404).json({
+        message: "username query is required",
+      });
+    }
+
+    const users = await userModel
+      .find({
+        username: {
+          $regex: username,
+          $options: "i",
+        },
+      })
+      .select("username avatar bio");
+
+    return res.status(200).json({
+      count: users.length,
+      users,
+    });
+  } catch (err) {
+    return res.status(500).json({
       message: err.message,
     });
   }
