@@ -3,6 +3,7 @@
 import postModel from "../models/post.model.js";
 import userModel from "../models/user.model.js";
 import imagekit from "../config/imagekit.js";
+import notificationModel from "../models/notification.model.js";
 
 // post create function
 export async function createPost(req, res) {
@@ -140,7 +141,15 @@ export async function toggleLike(req, res) {
 
     post.likes.push(userId);
 
-    post.save();
+    await post.save();
+
+    if (post.author.toString() !== userId) {
+      await notificationModel.create({
+        sender: userId,
+        receiver: post.author,
+        type: "like",
+      });
+    }
 
     return res.status(200).json({
       message: "post liked",
@@ -180,6 +189,15 @@ export async function addComment(req, res) {
     post.comments.push(comment);
 
     await post.save();
+
+    if (post.author.toString() !== req.user.id) {
+      await notificationModel.create({
+        sender: req.user.id,
+        receiver: post.author,
+        post: post._id,
+        type: "comment",
+      });
+    }
 
     return res.status(200).json({
       message: "comment added successfully",
