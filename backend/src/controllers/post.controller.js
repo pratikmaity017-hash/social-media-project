@@ -218,7 +218,7 @@ export async function getFeed(req, res) {
     const posts = await postModel
       .find({
         author: {
-          $in: currentUser.following,
+          $in: [...currentUser.following, currentUser._id],
         },
       })
       .populate("author", "username avatar")
