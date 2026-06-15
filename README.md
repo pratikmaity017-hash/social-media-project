@@ -149,7 +149,7 @@ IMAGEKIT_URL_ENDPOINT=your_url_endpoint
 ### Clone Repository
 
 ```bash
-git clone <your-repository-url>
+git clone https://github.com/pratikmaity017-hash/social-media-project.git
 ```
 
 ### Install Dependencies
