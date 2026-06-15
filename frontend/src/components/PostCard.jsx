@@ -18,11 +18,11 @@ const PostCard = ({ post }) => {
       {/* Image*/}
 
       {post.image && (
-        <img src={post.image} alt="post" className="w-full rounded-lg" />
+        <img src={post.image} alt="post" className="w-full rounded-lg max-h-[500px] object-cover" />
       )}
 
       {/* Like Count */}
-      <div className="mt-3">❤️ {post.likes.length} Likes</div>
+      <div className="mt-3">❤️ {post.likes?.length || 0} Likes</div>
     </div>
   );
 };
