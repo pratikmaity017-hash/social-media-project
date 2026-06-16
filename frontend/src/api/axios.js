@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const api = axios.create({
-  baseURL: "http://localhost:3000/api",
+  baseURL: "https://social-media-project-m5b3.onrender.com/api",
   withCredentials: true,
 });
 
