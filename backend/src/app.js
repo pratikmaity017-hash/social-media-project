@@ -31,6 +31,4 @@ app.use("/api/users", userRouter);
 app.use("/api/posts", postRouter);
 app.use("/api/notifications", notificationRouter);
 
-console.log("CLIENT_URL:", config.CLIENT_URL);
-
 export default app;
