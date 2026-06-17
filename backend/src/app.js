@@ -3,6 +3,7 @@
 import express from "express";
 import cookieParser from "cookie-parser";
 import cors from "cors";
+import config from "./config/config.js";
 import authRouter from "./routes/auth.route.js";
 import postRouter from "./routes/post.route.js";
 import notificationRouter from "./routes/notification.route.js";
@@ -11,7 +12,7 @@ const app = express();
 
 app.use(
   cors({
-    origin: process.env.CLIENT_URL,
+    origin: config.CLIENT_URL,
     credentials: true,
   }),
 );
