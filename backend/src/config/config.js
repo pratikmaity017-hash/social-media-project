@@ -16,6 +16,8 @@ const config = {
   MONGO_URI: process.env.MONGO_URI,
   JWT_SECRET: process.env.JWT_SECRET,
   PORT: process.env.PORT || 3000,
+  CLIENT_URL: process.env.CLIENT_URL,
+  NODE_ENV: process.env.NODE_ENV || "development",
 };
 
 export default config;
