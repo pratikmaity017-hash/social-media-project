@@ -1,8 +1,6 @@
-
-// env file theka secret gulo import korlam ar check korlam ja exists kore kina data 
+// env file theka secret gulo import korlam ar check korlam ja exists kore kina data
 
 import dotenv from "dotenv";
-
 
 dotenv.config();
 
@@ -17,7 +15,7 @@ if (!process.env.JWT_SECRET) {
 const config = {
   MONGO_URI: process.env.MONGO_URI,
   JWT_SECRET: process.env.JWT_SECRET,
+  PORT: process.env.PORT || 3000,
 };
 
-
-export default config
+export default config;
