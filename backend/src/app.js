@@ -12,7 +12,10 @@ const app = express();
 
 app.use(
   cors({
-    origin: config.CLIENT_URL,
+    origin: [
+      "http://localhost:5173",
+      "https://social-media-project-weld.vercel.app",
+    ],
     credentials: true,
   }),
 );
@@ -24,5 +27,7 @@ app.use("/api/post", postRouter);
 app.use("/api/users", userRouter);
 app.use("/api/posts", postRouter);
 app.use("/api/notifications", notificationRouter);
+
+console.log("CLIENT_URL:", config.CLIENT_URL);
 
 export default app;
