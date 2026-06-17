@@ -10,6 +10,9 @@ import notificationRouter from "./routes/notification.route.js";
 import userRouter from "./routes/users.route.js";
 const app = express();
 
+app.set("trust proxy", 1);
+app.use(express.json());
+
 app.use(
   cors({
     origin: [
@@ -19,7 +22,7 @@ app.use(
     credentials: true,
   }),
 );
-app.use(express.json());
+
 app.use(cookieParser());
 
 app.use("/api/auth", authRouter);
