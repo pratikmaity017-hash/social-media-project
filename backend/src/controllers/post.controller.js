@@ -190,6 +190,8 @@ export async function addComment(req, res) {
 
     await post.save();
 
+    await post.populate("comments.user", "username avatar");
+
     if (post.author.toString() !== req.user.id) {
       await notificationModel.create({
         sender: req.user.id,
@@ -201,7 +203,7 @@ export async function addComment(req, res) {
 
     return res.status(200).json({
       message: "comment added successfully",
-      comment,
+      comments: post.comments,
       commentscount: post.comments.length,
     });
   } catch (err) {
@@ -222,6 +224,7 @@ export async function getFeed(req, res) {
         },
       })
       .populate("author", "username avatar")
+      .populate("comments.user", "username avatar")
       .sort({ createdAt: -1 });
 
     return res.status(200).json({

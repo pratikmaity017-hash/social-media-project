@@ -104,13 +104,20 @@ export async function toggleFollow(req, res) {
 export async function getUserProfile(req, res) {
   try {
     const { id } = req.params;
+
     const user = await userModel.findById(id);
+
+    const posts = await postModel.find({ author: id }).sort({ createdAt: -1 });
 
     if (!user) {
       return res.status(404).json({
         message: "user not found",
       });
     }
+
+    const isFollowing = user.followers.some(
+      (followerId) => followerId.toString() === req.user.id,
+    );
 
     const postCount = await postModel.countDocuments({
       author: id,
@@ -127,8 +134,11 @@ export async function getUserProfile(req, res) {
         followingCount: user.following.length,
         postCount,
       },
+      posts,
+      isFollowing,
     });
   } catch (err) {
+    console.log("ERROR:", err);
     return res.status(500).json({
       message: err.message,
     });
