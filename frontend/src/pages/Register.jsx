@@ -26,7 +26,7 @@ const Register = () => {
 
       alert("Registerd Successfully");
 
-      navigate("/login");
+      navigate("/posts/feed");
     } catch (err) {
       alert(err.response?.data?.message);
     }

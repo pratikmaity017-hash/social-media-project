@@ -36,8 +36,7 @@ const CreatePost = () => {
 
       const res = await api.post("/post/createpost", formData);
 
-      console.log(res.data);
-alert("Post created successfully")
+      alert("Post created successfully");
       navigate("/posts/feed");
     } catch (err) {
       console.log(err);
