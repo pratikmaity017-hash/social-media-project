@@ -2,8 +2,12 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 import api from "../api/axios";
+import { useAuth } from "../context/AuthContext.jsx";
 
 const Register = () => {
+
+  const {getCurrentUser} = useAuth();
+
   const [username, setUsername] = useState("");
 
   const [email, setEmail] = useState("");
@@ -23,6 +27,8 @@ const Register = () => {
         email,
         password,
       });
+
+      await getCurrentUser();
 
       alert("Registerd Successfully");
 
