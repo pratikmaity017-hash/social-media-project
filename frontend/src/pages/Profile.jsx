@@ -11,12 +11,15 @@ const Profile = () => {
   const { id } = useParams();
   const [profile, setProfile] = useState(null);
   const [isFollowing, setIsFollowing] = useState(false);
-  const [followersCount, setFollowersCount] = useState(
-    user?.followersCount || 0,
-  );
+  const [followersCount, setFollowersCount] = useState(0);
   const [isEditing, setIsEditing] = useState(false);
   const [bio, setBio] = useState("");
   const [file, setFile] = useState(null);
+
+  const isOwner = Boolean(
+    user?.id === profile.user._id || user?._id === profile.user._id,
+  );
+
   useEffect(() => {
     getProfile();
   }, [id]);
@@ -59,8 +62,15 @@ const Profile = () => {
 
       setProfile((prev) => ({
         ...prev,
-        user: res.data.user,
+
+        user: {
+          ...prev.user,
+          ...res.data.user,
+        },
       }));
+
+      setBio(res.data.user.bio || "");
+      setFile(null);
 
       setIsEditing(false);
     } catch (err) {
@@ -84,9 +94,12 @@ const Profile = () => {
       <p>{profile.user.bio}</p>
 
       <div className="mt-3">
-        {user?.id === profile.user._id ? (
+        {isOwner ? (
           <button
-            onClick={() => setIsEditing(true)}
+            onClick={() => {
+              setIsEditing(true);
+              setBio(profile.user.bio || "");
+            }}
             className="px-3 py-1 bg-gray-800 text-white rounded"
           >
             Edit Profile
