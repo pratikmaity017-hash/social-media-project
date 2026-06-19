@@ -84,14 +84,18 @@ const Profile = () => {
       <p>{profile.user.bio}</p>
 
       <div className="mt-3">
-        {user?.id === profile.user._id ? (
-          <button
-            onClick={() => setIsEditing(true)}
-            className="px-3 py-1 bg-gray-800 text-white rounded"
-          >
-            Edit Profile
-          </button>
-        ) : (
+        {user?.id ===
+          profile.user._id(
+            <button
+              onClick={() => setIsEditing(true)}
+              className="px-3 py-1 bg-gray-800 text-white rounded"
+            >
+              Edit Profile
+            </button>,
+          )}
+      </div>
+      <div className="mt-3">
+        {user?.id !== profile.user._id && (
           <button
             onClick={handleFollow}
             className="px-4 py-2 bg-blue-500 text-white rounded hover:cursor-pointer"
