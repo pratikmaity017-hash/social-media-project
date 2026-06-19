@@ -85,13 +85,13 @@ const Profile = () => {
 
       <div className="mt-3">
         {user?.id ===
-          profile.user._id(
+          profile.user._id && (
             <button
               onClick={() => setIsEditing(true)}
               className="px-3 py-1 bg-gray-800 text-white rounded"
             >
               Edit Profile
-            </button>,
+            </button>
           )}
       </div>
       <div className="mt-3">
