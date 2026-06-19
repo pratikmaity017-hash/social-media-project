@@ -125,7 +125,11 @@ export async function loginUser(req, res) {
 // logout the user
 export async function logoutUser(req, res) {
   try {
-    res.clearCookie("token");
+    res.clearCookie("token", {
+      httpOnly: true,
+      secure: true,
+      sameSite: "none",
+    });
 
     res.status(200).json({
       message: "Logged out successfully",
