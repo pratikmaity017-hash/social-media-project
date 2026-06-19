@@ -43,7 +43,7 @@ export async function registerUser(req, res) {
       },
       config.JWT_SECRET,
       {
-        expiresIn: "1d",
+        expiresIn: "7d",
       },
     );
 
@@ -71,10 +71,10 @@ export async function registerUser(req, res) {
 // login the user
 export async function loginUser(req, res) {
   try {
-    const { username, email, password } = req.body;
+    const { identifier, password } = req.body;
 
     const user = await userModel.findOne({
-      $or: [{ username }, { email }],
+      $or: [{ username: identifier }, { email: identifier }],
     });
 
     if (!user) {
@@ -97,7 +97,7 @@ export async function loginUser(req, res) {
       },
       config.JWT_SECRET,
       {
-        expiresIn: "1d",
+        expiresIn: "7d",
       },
     );
 
