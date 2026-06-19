@@ -11,7 +11,9 @@ const Profile = () => {
   const { id } = useParams();
   const [profile, setProfile] = useState(null);
   const [isFollowing, setIsFollowing] = useState(false);
-  const [followersCount, setFollowersCount] = useState(user?.followersCount || 0);
+  const [followersCount, setFollowersCount] = useState(
+    user?.followersCount || 0,
+  );
 
   useEffect(() => {
     getProfile();
@@ -32,7 +34,7 @@ const Profile = () => {
   const handleFollow = async () => {
     try {
       const res = await api.post(`/users/${id}/follow`);
-      
+
       setIsFollowing(res.data.isFollowing);
       setFollowersCount(res.data.followersCount);
     } catch (err) {
@@ -72,9 +74,11 @@ const Profile = () => {
         <span>{profile.user.followingCount} Following</span>
       </div>
 
-      <div className="mt-8 space-y-5">
+      <div className="max-w-2xl mx-auto mt-20 space-y-5">
         {profile.posts?.length > 0 ? (
-          profile.posts.map((post) => <PostCard key={post._id} post={post} />)
+          profile.posts.map((post) => {
+            return <PostCard key={post._id} post={post} />;
+          })
         ) : (
           <p> No posts yet</p>
         )}
