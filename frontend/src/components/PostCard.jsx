@@ -75,8 +75,7 @@ const PostCard = ({ post, onDelete }) => {
         formData.append("image", editedImage);
       }
 
-      console.log("caption =", editedCaption);
-      console.log("image =", editedImage);
+  
 
       const res = await api.patch(`/posts/${postData._id}`, formData);
 
@@ -95,6 +94,9 @@ const PostCard = ({ post, onDelete }) => {
   useEffect(() => {
     setComments(post.comments || []);
   }, [post.comments]);
+
+  console.log("Current User:", user?.id);
+  console.log("Post Author:", postData.author);
 
   return (
     <div className="bg-white border rounded-lg p-4">
