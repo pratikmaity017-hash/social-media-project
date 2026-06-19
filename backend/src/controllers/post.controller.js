@@ -241,8 +241,17 @@ export async function getFeed(req, res) {
 
 export async function updatePost(req, res) {
   try {
+
+    console.log("req.body =", req.body);
+    console.log("req.file =", req.file);
     const { id } = req.params;
     const { caption, image } = req.body;
+
+    if (caption === undefined && image === undefined) {
+      return res.status(400).json({
+        message: "Nothing to update",
+      });
+    }
 
     const post = await postModel.findById(id);
 
@@ -259,7 +268,24 @@ export async function updatePost(req, res) {
     }
 
     if (caption !== undefined) {
-      post.caption = caption;
+      if (!caption.trim()) {
+        return res.status(400).json({
+          message: "Caption cannot be empty",
+        });
+      }
+
+      post.caption = caption.trim();
+    }
+
+    if (req.file) {
+      console.log("req.file =", req.file);
+      const result = await imagekit.files.upload({
+        file: req.file.buffer.toString("base64"),
+        fileName: `${Date.now()}-${req.file.originalname}`,
+        folder: "/posts",
+      });
+
+      post.image = result.url;
     }
 
     if (image !== undefined) {
@@ -273,6 +299,8 @@ export async function updatePost(req, res) {
       post,
     });
   } catch (err) {
+    console.error("UPDATE POST ERROR:");
+    console.error(err);
     return res.status(500).json({
       message: err.message,
     });

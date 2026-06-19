@@ -15,6 +15,14 @@ const PostCard = ({ post, onDelete }) => {
   const [comments, setComments] = useState(post.comments || []);
   const [commentText, setCommentText] = useState("");
 
+  const [isEditing, setIsEditing] = useState(false);
+  const [editedCaption, setEditedCaption] = useState(post.caption);
+  const [postData, setPostData] = useState(post);
+  const [editedImage, setEditedImage] = useState(null);
+  const [previewImage, setPreviewImage] = useState(postData?.image);
+
+  const [showMenu, setShowMenu] = useState(false);
+
   useEffect(() => {
     if (user) {
       setLiked(post.likes?.includes(user.id));
@@ -57,6 +65,33 @@ const PostCard = ({ post, onDelete }) => {
     }
   };
 
+  const handleUpdate = async () => {
+    try {
+      const formData = new FormData();
+
+      formData.append("caption", editedCaption);
+
+      if (editedImage) {
+        formData.append("image", editedImage);
+      }
+
+      console.log("caption =", editedCaption);
+      console.log("image =", editedImage);
+
+      const res = await api.patch(`/posts/${postData._id}`, formData);
+
+      setPostData(res.data.post);
+      setEditedCaption(res.data.post.caption);
+
+      setPreviewImage(res.data.post.image);
+      setEditedImage(null);
+
+      setIsEditing(false);
+    } catch (err) {
+      console.log("ERROR:", err.response?.data);
+    }
+  };
+
   useEffect(() => {
     setComments(post.comments || []);
   }, [post.comments]);
@@ -64,26 +99,123 @@ const PostCard = ({ post, onDelete }) => {
   return (
     <div className="bg-white border rounded-lg p-4">
       {/* User Info */}
-      <div className="flex items-center gap-3 mb-3">
-        <img
-          src={post.author?.avatar || "/default-avatar.png"}
-          alt="avatar"
-          className="w-10 h-10 rounded-full object-cover"
-        />
+      <div className="flex items-center justify-between mb-3">
+        <div className="flex items-center gap-3">
+          <img
+            src={postData.author?.avatar || "/default-avatar.png"}
+            alt="avatar"
+            className="w-10 h-10 rounded-full object-cover"
+          />
 
-        <Link to={`/profile/${post.author._id}`} className="font-semibold">
-          {post.author?.username}
-        </Link>
+          <Link
+            to={`/profile/${postData.author._id}`}
+            className="font-semibold"
+          >
+            {postData.author?.username}
+          </Link>
+        </div>
+
+        {user?.id === postData.author?._id && (
+          <div className="relative">
+            <button
+              onClick={() => setShowMenu(!showMenu)}
+              className="text-xl px-2 hover:bg-gray-100 rounded"
+            >
+              ⋮
+            </button>
+
+            {showMenu && (
+              <div className="absolute right-0 mt-2 w-32 bg-white border rounded shadow-lg z-10">
+                <button
+                  onClick={() => {
+                    setEditedCaption(postData.caption);
+                    setPreviewImage(postData.image);
+                    setEditedImage(null);
+
+                    setIsEditing(true);
+                    setShowMenu(false);
+                  }}
+                  className="block w-full text-left px-4 py-2 hover:bg-gray-100"
+                >
+                  ✏️ Edit
+                </button>
+
+                <button
+                  onClick={() => {
+                    handleDelete();
+                    setShowMenu(false);
+                  }}
+                  className="block w-full text-left px-4 py-2 text-red-500 hover:bg-gray-100"
+                >
+                  🗑️ Delete
+                </button>
+              </div>
+            )}
+          </div>
+        )}
       </div>
 
       {/* Caption*/}
-      <p className="mb-3">{post.caption}</p>
+      {isEditing ? (
+        <div className="mb-3">
+          <textarea
+            value={editedCaption}
+            onChange={(e) => setEditedCaption(e.target.value)}
+            className="w-full border rounded p-2"
+          />
+
+          <input
+            type="file"
+            accept="image/*"
+            onChange={(e) => {
+              const file = e.target.files[0];
+
+              if (!file) return;
+
+              setEditedImage(file);
+              setPreviewImage(URL.createObjectURL(file));
+            }}
+            className="mt-2"
+          />
+
+          {previewImage && (
+            <img
+              src={previewImage}
+              alt="preview"
+              className="w-full rounded-lg max-h-75 object-cover mt-2"
+            />
+          )}
+
+          <div className="flex gap-2 mt-2">
+            <button
+              onClick={handleUpdate}
+              className="bg-green-500 text-white px-3 py-1 rounded hover:cursor-pointer"
+            >
+              Save
+            </button>
+
+            <button
+              onClick={() => {
+                setEditedCaption(postData.caption);
+                setPreviewImage(postData.image);
+                setEditedImage(null);
+                setIsEditing(false);
+              }}
+              className="bg-gray-500 text-white px-3 py-1 rounded"
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+      ) : (
+        <p className="mb-3">{postData.caption}</p>
+      )}
 
       {/* Image*/}
 
-      {post.image && (
+      {postData.image && (
         <img
-          src={post.image}
+          src={postData.image}
           alt="post"
           className="w-full rounded-lg max-h-[500px] object-cover"
         />
@@ -98,15 +230,6 @@ const PostCard = ({ post, onDelete }) => {
         </button>
 
         <button>🔖 Save</button>
-
-        {user?.id === post.author?._id && (
-          <button
-            onClick={handleDelete}
-            className="text-red-500 hover:cursor-pointer"
-          >
-            🗑️ Delete
-          </button>
-        )}
       </div>
 
       <div className="mt-4 border-t pt-3">

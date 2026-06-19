@@ -50,7 +50,7 @@ export async function registerUser(req, res) {
     res.cookie("token", token, {
       httpOnly: true,
       secure: true,
-      sameSite: "none" 
+      sameSite: "none",
     });
 
     res.status(201).json({
@@ -103,8 +103,8 @@ export async function loginUser(req, res) {
 
     res.cookie("token", token, {
       httpOnly: true,
-      secure: config.NODE_ENV === "production",
-      sameSite: config.NODE_ENV === "production" ? "none" : "lax",
+      secure: true,
+      sameSite: "none",
     });
 
     res.status(200).json({

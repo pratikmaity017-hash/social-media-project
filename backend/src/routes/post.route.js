@@ -24,7 +24,12 @@ router.post("/:id/like", authMiddleware, postController.toggleLike);
 
 router.post("/:id/comment", authMiddleware, postController.addComment);
 
-router.patch("/:id", authMiddleware, postController.updatePost);
+router.patch(
+  "/:id",
+  authMiddleware,
+  upload.single("image"),
+  postController.updatePost,
+);
 
 router.delete(
   "/:postId/comment/:commentId",
