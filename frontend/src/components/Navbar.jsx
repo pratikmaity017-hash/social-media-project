@@ -38,11 +38,20 @@ const Navbar = () => {
       </div>
 
       {/* profile*/}
-      {user && (
-        <Link to={`/profile/${user.id}`}>
-          <FaUser className="text-xl hover:text-gray-600 cursor-pointer" />
-        </Link>
-      )}
+      <div>
+        {user ? (
+          <Link to={`/profile/${user.id}`}>
+            <FaUser className="text-xl hover:text-gray-600 cursor-pointer" />
+          </Link>
+        ) : (
+          <Link
+            to="/login"
+            className="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded"
+          >
+            Sign In
+          </Link>
+        )}
+      </div>
     </nav>
   );
 };
