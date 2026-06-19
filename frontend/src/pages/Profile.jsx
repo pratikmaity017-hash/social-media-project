@@ -17,7 +17,7 @@ const Profile = () => {
   const [file, setFile] = useState(null);
 
   const isOwner = Boolean(
-    user?.id === profile.user._id || user?._id === profile.user._id,
+    user?._id === profile?.user?._id || user?.id === profile?.user?._id,
   );
 
   useEffect(() => {
@@ -78,7 +78,7 @@ const Profile = () => {
     }
   };
 
-  if (!profile) {
+  if (!profile || !profile.user) {
     return <h2>Loading...</h2>;
   }
   return (
