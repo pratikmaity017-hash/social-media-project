@@ -6,8 +6,7 @@ import api from "../api/axios";
 
 const Login = () => {
   const { getCurrentUser } = useAuth();
-
-  const [email, setEmail] = useState("");
+  const [identifier, setIdentifier] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
 
@@ -17,7 +16,7 @@ const Login = () => {
     e.preventDefault();
     try {
       await api.post("/auth/login", {
-        email,
+        identifier,
         password,
       });
 
@@ -40,11 +39,12 @@ const Login = () => {
 
         <input
           className="border p-2"
-          type="email"
-          placeholder="Email"
-          value={email}
+          type="text"
+          required
+          placeholder="Enter email or username"
+          value={identifier}
           onChange={(e) => {
-            setEmail(e.target.value);
+            setIdentifier(e.target.value);
           }}
         />
         <div className="relative">
