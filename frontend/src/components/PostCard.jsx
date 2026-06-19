@@ -89,10 +89,7 @@ const PostCard = ({ post, onDelete }) => {
     }
   };
 
-  useEffect(() => {
-    console.log("logged user id:", user?.id);
-    console.log("post author:", postData.author);
-  }, [user, postData]);
+  useEffect(() => {}, [user, postData]);
 
   useEffect(() => {
     setComments(post.comments || []);
