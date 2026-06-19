@@ -219,7 +219,7 @@ const PostCard = ({ post, onDelete }) => {
         <img
           src={postData.image}
           alt="post"
-          className="w-full rounded-lg max-h-[500px] object-cover"
+          className="w-full rounded-lg max-h-125 object-cover"
         />
       )}
 
