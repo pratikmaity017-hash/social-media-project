@@ -1,12 +1,14 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import { useNavigate } from "react-router-dom";
 
 import api from "../api/axios";
 import PostCard from "../components/PostCard";
 
 const Profile = () => {
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
+  const navigate = useNavigate();
 
   const { id } = useParams();
   const [profile, setProfile] = useState(null);
@@ -78,6 +80,11 @@ const Profile = () => {
     }
   };
 
+  const handleLogout = async () => {
+    await logout();
+    navigate("/login");
+  };
+
   if (!profile || !profile.user) {
     return <h2>Loading...</h2>;
   }
@@ -95,19 +102,28 @@ const Profile = () => {
 
       <div className="mt-3">
         {isOwner ? (
-          <button
-            onClick={() => {
-              setIsEditing(true);
-              setBio(profile.user.bio || "");
-            }}
-            className="px-3 py-1 bg-gray-800 text-white rounded"
-          >
-            Edit Profile
-          </button>
+          <div className="flex gap-3">
+            <button
+              onClick={() => {
+                setIsEditing(true);
+                setBio(profile.user.bio || "");
+              }}
+              className="px-3 py-1 bg-gray-800 text-white rounded"
+            >
+              Edit Profile
+            </button>
+
+            <button
+              onClick={handleLogout}
+              className="px-3 py-1 bg-red-500 text-white rounded"
+            >
+              Logout
+            </button>
+          </div>
         ) : (
           <button
             onClick={handleFollow}
-            className="px-4 py-2 bg-blue-500 text-white rounded hover:cursor-pointer"
+            className="px-4 py-2 bg-blue-500 text-white rounded"
           >
             {isFollowing ? "Unfollow" : "Follow"}
           </button>

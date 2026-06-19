@@ -19,13 +19,24 @@ export const AuthContext = ({ children }) => {
     }
   };
 
+  const logout = async () => {
+    try {
+      await api.post("/auth/logout");
+    
+    } catch (err) {
+      console.log(err);
+    } finally {
+      setUser(null);
+    }
+  };
+
   useEffect(() => {
     getCurrentUser();
   }, []);
 
   return (
     <AuthDataContext.Provider
-      value={{ user, setUser, loading, setLoading, getCurrentUser }}
+      value={{ user, setUser, loading, setLoading, getCurrentUser, logout }}
     >
       {children}
     </AuthDataContext.Provider>
