@@ -241,13 +241,12 @@ export async function getFeed(req, res) {
 
 export async function updatePost(req, res) {
   try {
-
     console.log("req.body =", req.body);
     console.log("req.file =", req.file);
     const { id } = req.params;
-    const { caption, image } = req.body;
+    const { caption } = req.body;
 
-    if (caption === undefined && image === undefined) {
+    if (caption === undefined) {
       return res.status(400).json({
         message: "Nothing to update",
       });
@@ -286,10 +285,6 @@ export async function updatePost(req, res) {
       });
 
       post.image = result.url;
-    }
-
-    if (image !== undefined) {
-      post.image = image;
     }
 
     await post.save();

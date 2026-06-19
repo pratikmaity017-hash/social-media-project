@@ -16,7 +16,12 @@ router.get("/search", authMiddleware, userController.searchUser);
 
 router.get("/:id", authMiddleware, userController.getUserProfile);
 
-router.patch("/profile", authMiddleware, userController.updateProfile);
+router.patch(
+  "/profile",
+  authMiddleware,
+  upload.single("avatar"),
+  userController.updateProfile,
+);
 
 router.post(
   "/avatar",

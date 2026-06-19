@@ -14,7 +14,9 @@ const Profile = () => {
   const [followersCount, setFollowersCount] = useState(
     user?.followersCount || 0,
   );
-
+  const [isEditing, setIsEditing] = useState(false);
+  const [bio, setBio] = useState("");
+  const [file, setFile] = useState(null);
   useEffect(() => {
     getProfile();
   }, [id]);
@@ -42,6 +44,30 @@ const Profile = () => {
     }
   };
 
+  const handleUpdateProfile = async () => {
+    try {
+      const formData = new FormData();
+      formData.append("bio", bio);
+
+      if (file) {
+        formData.append("avatar", file);
+      }
+
+      const res = await api.patch("/users/profile", formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+
+      setProfile((prev) => ({
+        ...prev,
+        user: res.data.user,
+      }));
+
+      setIsEditing(false);
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
   if (!profile) {
     return <h2>Loading...</h2>;
   }
@@ -55,8 +81,17 @@ const Profile = () => {
 
       <h1 className="text-2xl font-bold mt-2">{profile.user.username}</h1>
 
+      <p>{profile.user.bio}</p>
+
       <div className="mt-3">
-        {user?.id !== profile.user._id && (
+        {user?.id === profile.user._id ? (
+          <button
+            onClick={() => setIsEditing(true)}
+            className="px-3 py-1 bg-gray-800 text-white rounded"
+          >
+            Edit Profile
+          </button>
+        ) : (
           <button
             onClick={handleFollow}
             className="px-4 py-2 bg-blue-500 text-white rounded hover:cursor-pointer"
@@ -66,7 +101,25 @@ const Profile = () => {
         )}
       </div>
 
-      <p>{profile.user.bio}</p>
+      {isEditing && (
+        <div className="mt-4 border p-4 rounded">
+          <input type="file" onChange={(e) => setFile(e.target.files[0])} />
+
+          <textarea
+            value={bio}
+            placeholder="Update your bio"
+            onChange={(e) => setBio(e.target.value)}
+            className="w-full border mt-2 p-2"
+          />
+
+          <button
+            onClick={handleUpdateProfile}
+            className="bg-green-500 text-white px-4 py-1 mt-2 rounded"
+          >
+            Save
+          </button>
+        </div>
+      )}
 
       <div className="flex gap-6 mt-4">
         <span>{profile.user.postCount} Posts</span>

@@ -147,29 +147,52 @@ export async function getUserProfile(req, res) {
 
 export async function updateProfile(req, res) {
   try {
-    const { bio, avatar } = req.body;
+    const { bio } = req.body;
 
-    const user = await userModel.findById(req.user.id).select("-password");
+    if (!bio && !req.file) {
+      return res.status(400).json({
+        message: "Nothing to update",
+      });
+    }
 
-    if (!user) {
+    const updatedUser = await userModel.findById(req.user.id);
+
+    if (!updatedUser) {
       return res.status(404).json({
         message: "user not found",
       });
     }
 
     if (bio !== undefined) {
-      user.bio = bio;
+      updatedUser.bio = bio;
     }
 
-    if (avatar !== undefined) {
-      user.avatar = avatar;
+    if (req.file) {
+      if (!req.file.mimetype.startsWith("image/")) {
+        return res.status(400).json({
+          message: "Only image files are allowed",
+        });
+      }
+      const uploadedImage = await imagekit.files.upload({
+        file: req.file.buffer.toString("base64"),
+        fileName: `avatar-${req.user.id}-${Date.now()}`,
+        folder: "/avatars",
+      });
+
+      updatedUser.avatar = uploadedImage.url;
     }
 
-    await user.save();
+    await updatedUser.save();
 
     return res.status(200).json({
       message: "Profile updated successfully",
-      user,
+      user: {
+        id: updatedUser._id,
+        name: updatedUser.name,
+        username: updatedUser.username,
+        bio: updatedUser.bio,
+        avatar: updatedUser.avatar,
+      },
     });
   } catch (err) {
     return res.status(500).json({
@@ -222,11 +245,11 @@ export async function uploadAvatar(req, res) {
       folder: "/avatars",
     });
 
-    const user = await userModel.findById(req.user.id);
+    const updatedUser = await userModel.findById(req.user.id);
 
-    user.avatar = result.url;
+    updatedUser.avatar = result.url;
 
-    await user.save();
+    await updatedUser.save();
 
     return res.status(200).json({
       message: "avatar uploaded successfully",
